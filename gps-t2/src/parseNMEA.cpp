@@ -40,7 +40,7 @@ bool isWellFormedSentence(string NMEAString)
 	  		//Check if those 5 chars are all letters
     	    if(onlyAlpha == true){
 
-                string NMEACheck = "\\$([A-Z]{5})\\*[0-9A-Za-z]{2}"; // Checks NMEAString contains $ | 5 letters | any fields (if applicable) | * + checksum
+                string NMEACheck = "\\$([A-Z]{5})(,([A-Z a-z 0-9\\,\\.])|)\\*[0-9A-Za-z]{2}"; // Checks NMEAString contains $ | 5 letters | any fields (if applicable) | * + checksum
 
                 bool hasStar = regex_match(NMEAString, regex(NMEACheck));
 
