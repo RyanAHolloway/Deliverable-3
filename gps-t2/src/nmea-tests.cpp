@@ -181,6 +181,11 @@ BOOST_AUTO_TEST_CASE( IncorrectChecksumWithLowercaseHexDigit )
     BOOST_CHECK( ! hasValidChecksum("$GPAAE*5f") );
 }
 
+BOOST_AUTO_TEST_CASE( InvalidNMEASentence )
+{
+    BOOST_CHECK( ! hasValidChecksum("$GPA22*5f") );
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 /////////////////////////////////////////////////////////////////////////////////////////

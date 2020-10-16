@@ -10,6 +10,8 @@
 #include <regex>
 #include <locale>
 #include <string.h>
+#include <assert.h>
+#include <numeric>
 
 using namespace std;
 
@@ -67,16 +69,48 @@ bool isWellFormedSentence(string NMEAString)
       return isOk;
   }
 
+bool hasValidChecksum(string NMEAString)
+	  {
+		bool isValid;
+	   bool pre = isWellFormedSentence(NMEAString); // Pre-condition: is a well formed NMEA sentence
+	   //If isWellFormedSentence does not equal false
+	   if(pre != false){
 
+		    // Put given NMEAString into a string stream
+			istringstream givenNMEA(NMEAString);
+			string NMEASentence;
+			getline(givenNMEA, NMEASentence, '*');// get the whole string up to the delimiter: *
 
+			// Save checksum provided in NMEAString to: rCheckSum
+			string rCheckSum;
+			getline(givenNMEA, rCheckSum);
 
+			// Calculate checksum through XOR
+			char checkSum = accumulate(NMEASentence.begin()+1, NMEASentence.end(), 0, [](char sum, char ch) { return sum ^ ch; });
 
+			// Convert variable to string for comparison
+			stringstream sCheck;
+			sCheck << (int)checkSum;
+			string checkValue = sCheck.str();
 
-  bool hasValidChecksum(std::string)
-  {
-      // Stub definition, needs implementing
-      return false;
-  }
+			// Convert int to string for comparison
+			int num = stoi(rCheckSum, 0, 16);
+			string numToString = to_string(num);
+
+			//Compare the given checksum with the calculated checksum
+			if(numToString == checkValue){
+				isValid = true;
+			}
+			else{
+				isValid = false;
+			}
+	   }
+	   //If isWellFormedSentence = false
+	   else{
+		   isValid = false;
+	   }
+		return isValid;;
+	  }
 
   SentenceData extractSentenceData(std::string)
   {
