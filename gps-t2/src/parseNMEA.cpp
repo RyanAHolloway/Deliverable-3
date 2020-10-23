@@ -15,8 +15,30 @@
 
 using namespace std;
 
+/*!
+*This application has been created to read and validate NMEA sentences \n
+*It does this by extracting the data from the sentence and ensuring the format and checksum are suitable.
+*/
+
+
 namespace NMEA
 {
+    /*! \fn bool isWellFormedSentence(string NMEAString)
+     * \brief This function determines whether the parameter is a well-formed NMEA sentence \n
+     *\n
+     * A NMEA sentence contains the following contents:\n
+     * - The prefix "$GP" \n
+     * - Followed by a sequence of three (English) alphabet characters identifying \n
+     * - The sentence format \n
+     * - Followed by a sequence of comma-separated data fields \n
+     * - Followed by a '*' character \
+     * - Followed by a two-character hexadecimal checksum \n
+     * - The '$' and '*' characters are reserved, and may not appear in the data fields \n
+     *\n
+     * For ill-formed sentences, this function returns false (it does not throw an exception or terminate the program) \n
+     * \param NMEAString
+     * \return 'true' if all the criteria is met
+     */
 
 bool isWellFormedSentence(string NMEAString)
   {
@@ -64,6 +86,14 @@ bool isWellFormedSentence(string NMEAString)
       return isOk;
   }
 
+/*! \fn bool hasValidChecksum(string NMEAString)
+ *\brief This function verifies whether a sentence has a valid checksum.\n
+ *To be valid, the checksum value should equal the XOR reduction of the character codes of all characters between the '$' and the '*' (exclusive).\n
+ *\par Pre-condition
+ *The parameter is a well-formed NMEA sentence.\n
+ *\param NMEAString
+ *\return 'true' if the checksum calculated matches the checksum provided
+ */
 bool hasValidChecksum(string NMEAString)
 	  {
 		bool isValid;
@@ -108,6 +138,14 @@ bool hasValidChecksum(string NMEAString)
 	  }
 
 
+/*! \fn bool extractSentenceData(string NMEAString)
+ *\brief This function extracts the sentence format and the field contents from a NMEA sentence.\n
+ *The '$GP' and the checksum are ignored.\n
+*\par Pre-condition
+ *The parameter is a well-formed NMEA sentence.\n
+ *\param NMEAString
+ *\return The sentence data is returned
+ */
   SentenceData extractSentenceData(string NMEAString)
   {
 	  pair <string, vector<string>> sentenceData;
@@ -153,6 +191,14 @@ bool hasValidChecksum(string NMEAString)
   }
 
 
+  /*! \fn GPS::Position positionFromSentenceData (SentenceData sentenceData)
+   *\brief This function computes a Position from NMEA Sentence Data.\n
+   * Currently only supports the GLL, GGA and RMC sentence formats.\n
+  *\par Exceptions
+  * Throws an invalid argument exception for unsupported sentence formats, or if the necessary data fields are missing or contain invalid data.
+  *\param SentenceData sentenceData
+   *\return The position data from the NMEA sentence data
+   */
   GPS::Position positionFromSentenceData(SentenceData sentenceData)
   {
 	  string checkLat = "([0-9\\.]*)";
@@ -269,6 +315,16 @@ bool hasValidChecksum(string NMEAString)
 
   }
 
+  /*! \fn Route routeFromLog (std::istream &ss)
+   *\brief This function reads a stream of NMEA sentences (one sentence per line), and constructs a route, ignoring any lines that do not contain valid sentences.\n
+  *A sentence is valid if:\n
+   *- It is a well-formed NMEA sentence\n
+   *- The checksum is valid\n
+   *- The sentence format is supported (currently GLL, GGA and RMC)\n
+   *- The necessary data fields are present and contain valid data\n
+  *\param std::istream &ss
+   *\return The valid route positions in a vector
+   */
   Route routeFromLog(std::istream &ss){
 
 	  string sentenceFromLog; // Data to hold string stream info
