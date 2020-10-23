@@ -1,17 +1,17 @@
 #include "earth.h"
 #include "parseNMEA.h"
 #include <iostream>
-#include <regex>
-#include <vector>
-#include <sstream>
-#include <iostream>
+#include <vector> // Add use of vectors
+#include <sstream> // Add use of string streams
 #include <string>
 #include <algorithm>
-#include <regex>
+#include <regex> //Regular expressions
 #include <locale>
 #include <string.h>
-#include <assert.h>
-#include <numeric>
+#include <assert.h> // Assertions
+#include <numeric> // Accumulate
+#include <stdexcept> // Exception throw
+#include <utility> // Pair
 
 using namespace std;
 
@@ -27,10 +27,6 @@ bool isWellFormedSentence(string NMEAString)
 	  int nmeaCodeLength = 5;
 	  string letterCheck = "[A-Z]+$";
 	  string check$ = NMEAString.substr (0,1); //Get first character
-
-
-	  // Refactor this part
-	  size_t s = NMEAString.find(firstDelim); // Find $ in string
 
 	  //Check if first char is $
 	  if(check$ == firstDelim){
@@ -68,7 +64,7 @@ bool isWellFormedSentence(string NMEAString)
 
       return isOk;
   }
-
+//REFACTOR TAG
 bool hasValidChecksum(string NMEAString)
 	  {
 		bool isValid;
@@ -112,22 +108,207 @@ bool hasValidChecksum(string NMEAString)
 		return isValid;;
 	  }
 
-  SentenceData extractSentenceData(std::string)
+
+  SentenceData extractSentenceData(string NMEAString)
   {
-      // Stub definition, needs implementing
-      return {"",{}};
+	  pair <string, vector<string>> sentenceData;
+
+	  bool pre = isWellFormedSentence(NMEAString); // Pre-condition: is a well formed NMEA sentence
+	  //If isWellFormedSentence does not equal false
+	  if(pre != false)
+	  {
+		  vector<string> givenNMEASentence; // vector for fields
+
+		  //Get whole string up to *
+		  istringstream givenNMEA(NMEAString);
+		  string NMEASentence;
+		  getline(givenNMEA, NMEASentence, '*');
+
+		  //Get the format type
+		  string nmeaFormat = NMEASentence.substr(3,3); //e.g $GPABC -> ABC
+
+		  //If NMEASentence has a , then procede to add fields to vector
+		  if(NMEASentence.find(",") != std::string::npos){
+
+		  	    string aNMEA = NMEASentence.substr(NMEASentence.find(",")+1); //NMEASentence - $GPXXX - 1st ,
+
+		  	    stringstream ss(aNMEA);
+
+				  while(ss.good()) {
+					  string field;
+					  getline(ss, field, ',');
+					  givenNMEASentence.push_back(field);
+				  }
+		  	}
+
+		  //Create sentenceData pair from format and vector
+		  sentenceData = make_pair(string(nmeaFormat), givenNMEASentence);
+	  }
+	  else
+	  {
+		  throw invalid_argument( "The NMEA sentence was not well formed" );
+	  }
+
+      return sentenceData; //{"",{}}
   }
 
-  GPS::Position positionFromSentenceData(SentenceData)
+
+  GPS::Position positionFromSentenceData(SentenceData sentenceData)
   {
-      // Stub definition, needs implementing
-      return GPS::Earth::NorthPole;
+	  string checkLat = "([0-9\\.]*)";
+	  string checkLong = "([0-9\\.]*)";
+	  string checkNS = "([NS]+)";
+	  string checkEW = "([EW]+)";
+	  string format = sentenceData.first;
+	  string gll = "GLL";
+	  string rmc = "RMC";
+	  string gga = "GGA";
+
+	  //If the vector in the pair is empty
+	  if(sentenceData.second.empty()){
+		  throw invalid_argument("Vector field is empty");
+	  }else{
+		  if(format == gll){ //If the format type is GLL
+
+			  vector<string> gllFields = sentenceData.second; //vector of fields
+
+			  string latitude = gllFields[0]; // get latitude field
+
+			  string upOrDown = gllFields[1]; // get N or S field
+			  char NorS = upOrDown[0];
+
+			  string longitude = gllFields[2]; // get longitude field
+
+			  string leftOrRight = gllFields[3]; // get E or W field
+			  char EorW = leftOrRight[0];
+
+
+			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
+			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
+			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
+			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
+
+			  if(latit && longit && ns && ew == true){
+
+				  string elev = "0";
+				    // Create GPS::Position object called posit and return the object
+					GPS::Position posit(latitude, NorS, longitude, EorW, elev);
+					return posit;
+			  }
+			  else{
+				  throw invalid_argument("Sentence field data is invalid!");
+			  }
+
+		  }
+		  else if(format == rmc){ // If the format type is RMC
+			  vector<string> rmcFields = sentenceData.second; //vector of fields
+
+			  string latitude = rmcFields[2]; // get latitude field
+
+			  string upOrDown = rmcFields[3]; // get N or S field
+			  char NorS = upOrDown[0];
+
+			  string longitude = rmcFields[4]; // get longitude field
+
+			  string leftOrRight = rmcFields[5]; // get E or W field
+			  char EorW = leftOrRight[0];
+
+			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
+			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
+			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
+			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
+
+			  if(latit && longit && ns && ew == true){
+
+				  string elev = "0";
+
+				    // Create GPS::Position object called posit and return the object
+					GPS::Position posit(latitude, NorS, longitude, EorW, elev);
+					return posit;
+			  }
+			  else{
+				  throw invalid_argument("Sentence field data is invalid!");
+			  }
+
+		  }
+		  else if(format == gga){ //If the format type is gga
+			  vector<string> ggaFields = sentenceData.second; //vector of fields
+
+			  string latitude = ggaFields[1]; // get latitude field
+
+			  string upOrDown = ggaFields[2]; // get N or S field
+			  char NorS = upOrDown[0];
+
+			  string longitude = ggaFields[3]; // get longitude field
+
+			  string leftOrRight = ggaFields[4]; // get E or W field
+			  char EorW = leftOrRight[0];
+
+			  string elevationValue = ggaFields[8]; // get the elevation field
+
+			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
+			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
+			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
+			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
+
+			  if(latit && longit && ns && ew == true){
+
+				    // Create GPS::Position object called posit and return the object
+					GPS::Position posit(latitude, NorS, longitude, EorW, elevationValue);
+					return posit;
+			  }
+			  else{
+				  throw invalid_argument("Sentence field data is invalid!");
+			  }
+
+		  }
+		  else{
+			  throw invalid_argument("Format not supported");
+		  }
+	  }
+
   }
 
-  Route routeFromLog(std::istream &)
-  {
-      // Stub definition, needs implementing
-      return {};
+  Route routeFromLog(std::istream &ss){
+
+	  string sentenceFromLog; // Data to hold string stream info
+	  vector <GPS::Position> routePositions; // Vector of GPS:Position objects
+
+	  while(getline(ss, sentenceFromLog)){
+		  if(!sentenceFromLog.size() == 0){
+			  if(isWellFormedSentence(sentenceFromLog) != false){
+					  if(hasValidChecksum(sentenceFromLog) != false){
+						  SentenceData theData = extractSentenceData(sentenceFromLog);
+						  string format = theData.first;
+						  string gll = "GLL";
+						  string rmc = "RMC";
+						  string gga = "GGA";
+						  //if(format == gll || format == rmc || format == gga){
+
+							  //Attempt to create position object and push into route vector
+							  try{
+								  GPS::Position positionObject = positionFromSentenceData(theData);//If invalid format the function execution is dropped through invalid_argument
+								  routePositions.push_back(positionObject);
+							  }
+							  catch(...){ //If exception from positionFromSentenceData received
+
+							  }
+						  //}
+						  //else{
+							  //throw invalid_argument("NOT SUPPORTED");
+						  //}
+					  }
+					  else{
+						  //throw invalid_argument("The checksum is invalid for this sentence");
+					  }
+				  }
+			  else{
+				  //throw invalid_argument("Sentence is not a well formed NMEA Sentence");
+			  }
+		  }
+	  }
+
+      return routePositions; //return vector
   }
 
 }
