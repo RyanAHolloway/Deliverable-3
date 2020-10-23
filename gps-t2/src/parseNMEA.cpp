@@ -271,8 +271,35 @@ bool hasValidChecksum(string NMEAString)
 
   Route routeFromLog(std::istream &ss){
 
+	  string sentenceFromLog; // Data to hold string stream info
+	  vector <GPS::Position> routePositions; // Vector of GPS:Position objects
 
-      return {}; //return vector
+	  while(getline(ss, sentenceFromLog)){
+		  // If the log is empty
+		  if(!sentenceFromLog.size() == 0){
+			  //If the sentence from the log is well formed
+			  if(isWellFormedSentence(sentenceFromLog) != false){
+				  //If the sentence has a valid checksum value
+				  if(hasValidChecksum(sentenceFromLog) != false){
+					  //Create SentenceData object
+					  SentenceData theData = extractSentenceData(sentenceFromLog);
+						  //Attempt to create position object and push into route vector
+						  try{
+							  GPS::Position positionObject = positionFromSentenceData(theData);//If invalid format the function execution is dropped through invalid_argument
+							  //Push the position object into the route vector
+							  routePositions.push_back(positionObject);
+						  }
+						  catch(...){ //If exception from positionFromSentenceData received
+							  //Catch exceptions to allow log to be missed and carry on processing other logs
+						  }
+
+				  }
+
+			  }
+		  }
+	  }
+
+      return routePositions; //return vector
   }
 
 }
