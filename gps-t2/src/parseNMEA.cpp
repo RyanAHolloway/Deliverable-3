@@ -200,66 +200,6 @@ bool hasValidChecksum(string NMEAString)
 			  }
 
 		  }
-		  else if(format == rmc){ // If the format type is RMC
-			  vector<string> rmcFields = sentenceData.second; //vector of fields
-
-			  string latitude = rmcFields[2]; // get latitude field
-
-			  string upOrDown = rmcFields[3]; // get N or S field
-			  char NorS = upOrDown[0];
-
-			  string longitude = rmcFields[4]; // get longitude field
-
-			  string leftOrRight = rmcFields[5]; // get E or W field
-			  char EorW = leftOrRight[0];
-
-			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
-			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
-			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
-			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
-
-			  if(latit && longit && ns && ew == true){
-
-				  string elev = "0";
-
-				    // Create GPS::Position object called posit and return the object
-					GPS::Position posit(latitude, NorS, longitude, EorW, elev);
-					return posit;
-			  }
-			  else{
-				  throw invalid_argument("Sentence field data is invalid!");
-			  }
-
-		  }
-		  else if(format == gga){ //If the format type is gga
-			  vector<string> ggaFields = sentenceData.second; //vector of fields
-
-			  string latitude = ggaFields[1]; // get latitude field
-
-			  string upOrDown = ggaFields[2]; // get N or S field
-			  char NorS = upOrDown[0];
-
-			  string longitude = ggaFields[3]; // get longitude field
-
-			  string leftOrRight = ggaFields[4]; // get E or W field
-			  char EorW = leftOrRight[0];
-
-			  string elevationValue = ggaFields[8]; // get the elevation field
-
-			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
-			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
-			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
-			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
-
-			  if(latit && longit && ns && ew == true){
-
-				    // Create GPS::Position object called posit and return the object
-					GPS::Position posit(latitude, NorS, longitude, EorW, elevationValue);
-					return posit;
-			  }
-			  else{
-				  throw invalid_argument("Sentence field data is invalid!");
-			  }
 
 		  }
 		  else{
@@ -271,44 +211,8 @@ bool hasValidChecksum(string NMEAString)
 
   Route routeFromLog(std::istream &ss){
 
-	  string sentenceFromLog; // Data to hold string stream info
-	  vector <GPS::Position> routePositions; // Vector of GPS:Position objects
 
-	  while(getline(ss, sentenceFromLog)){
-		  if(!sentenceFromLog.size() == 0){
-			  if(isWellFormedSentence(sentenceFromLog) != false){
-					  if(hasValidChecksum(sentenceFromLog) != false){
-						  SentenceData theData = extractSentenceData(sentenceFromLog);
-						  string format = theData.first;
-						  string gll = "GLL";
-						  string rmc = "RMC";
-						  string gga = "GGA";
-						  //if(format == gll || format == rmc || format == gga){
-
-							  //Attempt to create position object and push into route vector
-							  try{
-								  GPS::Position positionObject = positionFromSentenceData(theData);//If invalid format the function execution is dropped through invalid_argument
-								  routePositions.push_back(positionObject);
-							  }
-							  catch(...){ //If exception from positionFromSentenceData received
-
-							  }
-						  //}
-						  //else{
-							  //throw invalid_argument("NOT SUPPORTED");
-						  //}
-					  }
-					  else{
-						  //throw invalid_argument("The checksum is invalid for this sentence");
-					  }
-				  }
-			  else{
-				  //throw invalid_argument("Sentence is not a well formed NMEA Sentence");
-			  }
-		  }
-	  }
-
-      return routePositions; //return vector
+      return {}; //return vector
   }
 
 }
