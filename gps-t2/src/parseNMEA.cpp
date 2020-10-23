@@ -18,7 +18,6 @@ using namespace std;
 namespace NMEA
 {
 
-//REFACTOR WHOLE THING
 bool isWellFormedSentence(string NMEAString)
   {
 	  bool isOk;
@@ -64,7 +63,7 @@ bool isWellFormedSentence(string NMEAString)
 
       return isOk;
   }
-//REFACTOR TAG
+
 bool hasValidChecksum(string NMEAString)
 	  {
 		bool isValid;
@@ -118,6 +117,7 @@ bool hasValidChecksum(string NMEAString)
 	  if(pre != false)
 	  {
 		  vector<string> givenNMEASentence; // vector for fields
+		  string comma = ",";
 
 		  //Get whole string up to *
 		  istringstream givenNMEA(NMEAString);
@@ -128,9 +128,9 @@ bool hasValidChecksum(string NMEAString)
 		  string nmeaFormat = NMEASentence.substr(3,3); //e.g $GPABC -> ABC
 
 		  //If NMEASentence has a , then procede to add fields to vector
-		  if(NMEASentence.find(",") != std::string::npos){
+		  if(NMEASentence.find(comma) != std::string::npos){
 
-		  	    string aNMEA = NMEASentence.substr(NMEASentence.find(",")+1); //NMEASentence - $GPXXX - 1st ,
+		  	    string aNMEA = NMEASentence.substr(NMEASentence.find(comma)+1); //NMEASentence - $GPXXX - 1st ,
 
 		  	    stringstream ss(aNMEA);
 
