@@ -292,7 +292,6 @@ bool hasValidChecksum(string NMEAString)
 						  catch(...){ //If exception from positionFromSentenceData received
 							  //Catch exceptions to allow log to be missed and carry on processing other logs
 						  }
-
 				  }
 
 			  }

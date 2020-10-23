@@ -35,7 +35,7 @@ namespace NMEA
    */
   bool hasValidChecksum(std::string);
 
-
+  //LEAVE TILL LAST
   /* The first component of the pair is a NMEA sentence format.
    * The second component is a vector of sentence fields, excluding the checksum.
    * The elements of the vector should not include the separating commas.

@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE( MissingFieldsGLL )
     BOOST_CHECK_THROW( positionFromSentenceData(missingN) , std::invalid_argument );
 
     SentenceData missingE = { "GLL", {"5425.31","N","107.03","82610"} };
-    BOOST_CHECK_THROW( positionFromSentenceData(missingE) , std::invalid_argument );
+    BOOST_CHECK_THROW( positionFromSentenceData(missingE) , std::invalid_argument);
 
     SentenceData missingLat = { "GLL", {"N","107.03","E","82610"} };
     BOOST_CHECK_THROW( positionFromSentenceData(missingLat) , std::invalid_argument );
