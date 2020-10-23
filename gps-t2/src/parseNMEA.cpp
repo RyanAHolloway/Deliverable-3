@@ -200,6 +200,35 @@ bool hasValidChecksum(string NMEAString)
 			  }
 
 		  }
+		  else if(format == rmc){ // If the format type is RMC
+			  vector<string> rmcFields = sentenceData.second; //vector of fields
+
+			  string latitude = rmcFields[2]; // get latitude field
+
+			  string upOrDown = rmcFields[3]; // get N or S field
+			  char NorS = upOrDown[0];
+
+			  string longitude = rmcFields[4]; // get longitude field
+
+			  string leftOrRight = rmcFields[5]; // get E or W field
+			  char EorW = leftOrRight[0];
+
+			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
+			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
+			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
+			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
+
+			  if(latit && longit && ns && ew == true){
+
+				  string elev = "0";
+
+				    // Create GPS::Position object called posit and return the object
+					GPS::Position posit(latitude, NorS, longitude, EorW, elev);
+					return posit;
+			  }
+			  else{
+				  throw invalid_argument("Sentence field data is invalid!");
+			  }
 
 		  }
 		  else{
