@@ -231,6 +231,37 @@ bool hasValidChecksum(string NMEAString)
 			  }
 
 		  }
+		  else if(format == gga){ //If the format type is gga
+			  vector<string> ggaFields = sentenceData.second; //vector of fields
+
+			  string latitude = ggaFields[1]; // get latitude field
+
+			  string upOrDown = ggaFields[2]; // get N or S field
+			  char NorS = upOrDown[0];
+
+			  string longitude = ggaFields[3]; // get longitude field
+
+			  string leftOrRight = ggaFields[4]; // get E or W field
+			  char EorW = leftOrRight[0];
+
+			  string elevationValue = ggaFields[8]; // get the elevation field
+
+			  bool latit = regex_match(latitude, regex(checkLat)); // compare format of field for latitude is valid
+			  bool longit = regex_match(longitude, regex(checkLong)); // compare format of field for longitude is valid
+			  bool ns = regex_match(upOrDown, regex(checkNS)); // compare format of field for N or S is valid
+			  bool ew = regex_match(leftOrRight, regex(checkEW)); // compare format of field for E or W is valid
+
+			  if(latit && longit && ns && ew == true){
+
+				    // Create GPS::Position object called posit and return the object
+					GPS::Position posit(latitude, NorS, longitude, EorW, elevationValue);
+					return posit;
+			  }
+			  else{
+				  throw invalid_argument("Sentence field data is invalid!");
+			  }
+
+		  }
 		  else{
 			  throw invalid_argument("Format not supported");
 		  }
