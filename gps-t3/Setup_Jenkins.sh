@@ -1,6 +1,6 @@
 #! /bin/bash
 echo "Nottingham Trent University"
-echo "This script will deploy the environment for SDI and SE"
+echo "This script will setup the Jenkins environmet"
 echo "Author: Pedro Machado, pedro.baptistamachado@ntu.ac.uk"
 sudo apt update
 sudo apt upgrade -y
