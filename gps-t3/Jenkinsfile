@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo "TEST"
-                sh "make -f Makefile"
+                sh "make"
             }
         }
     }
