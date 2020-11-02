@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+<<<<<<< HEAD
 	<name>gps</name>
+=======
+	<name>gps-t2</name>
+>>>>>>> 8b97e7a8d921f25605e33b73c1be4aaa9f2b9a25
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
+<<<<<<< HEAD
 		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
 			<triggers>clean,full,incremental,</triggers>
@@ -23,5 +28,9 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+=======
+	</buildSpec>
+	<natures>
+>>>>>>> 8b97e7a8d921f25605e33b73c1be4aaa9f2b9a25
 	</natures>
 </projectDescription>
