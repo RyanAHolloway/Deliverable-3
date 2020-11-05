@@ -14,7 +14,7 @@ pipeline {
       stages {
            stage('Build') {
                 steps {
-                     sh 'cmake --build -G'
+                     sh 'cmake --build /Binaries'
                 }
            }
 
